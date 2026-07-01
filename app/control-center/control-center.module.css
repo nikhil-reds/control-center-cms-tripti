@@ -52,10 +52,21 @@
 }
 
 .controls {
+  position: relative;
   display: grid;
   width: min(100%, 1780px);
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(18px, 2.4vw, 46px);
+}
+
+.selectionStatus {
+  position: absolute;
+  top: calc(100% + 20px);
+  left: 0;
+  width: 100%;
+  margin: 0;
+  color: rgba(190, 255, 243, 0.9);
+  text-align: center;
 }
 
 .control {
@@ -131,6 +142,11 @@
   backdrop-filter: blur(8px);
 }
 
+.backButton:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
 .detailContent {
   display: flex;
   align-items: center;
@@ -198,6 +214,10 @@
 }
 
 .chevron {
+  width: 38%;
+}
+
+.playbackIcon {
   width: 38%;
 }
 

@@ -2,19 +2,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  pdfDocuments,
-  type PdfControlState,
+  mediaDocuments,
+  type PdfRemoteState,
   type PdfId,
 } from "@/lib/pdf-control";
 import styles from "../preview.module.css";
-import { PdfViewer } from "./PdfViewer";
+import { ImageViewer } from "./ImageViewer";
+import { VideoViewer } from "./VideoViewer";
 
 const initialPages = Object.fromEntries(
-  pdfDocuments.map((document) => [document.id, 1]),
+  mediaDocuments.map((document) => [document.id, 1]),
 ) as Record<PdfId, number>;
 
 export function PreviewWall() {
   const [pages, setPages] = useState(initialPages);
+  const [activePdfId, setActivePdfId] = useState<PdfId | null>(null);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const [apiOnline, setApiOnline] = useState(true);
 
   const refreshPages = useCallback(async () => {
@@ -22,10 +25,12 @@ export function PreviewWall() {
       const response = await fetch("/api/pdf-control", { cache: "no-store" });
       if (!response.ok) throw new Error("State request failed");
 
-      const data = (await response.json()) as { documents: PdfControlState };
+      const data = (await response.json()) as PdfRemoteState;
+      setActivePdfId(data.activePdfId);
+      setVideoPlaying(data.videoPlaying);
       setPages(
         Object.fromEntries(
-          pdfDocuments.map((document) => [
+          mediaDocuments.map((document) => [
             document.id,
             data.documents[document.id].page,
           ]),
@@ -37,6 +42,10 @@ export function PreviewWall() {
     }
   }, []);
 
+  const activeDocument = mediaDocuments.find(
+    (document) => document.id === activePdfId,
+  );
+
   useEffect(() => {
     const initialTimer = window.setTimeout(() => void refreshPages(), 0);
     const timer = window.setInterval(() => void refreshPages(), 700);
@@ -46,31 +55,31 @@ export function PreviewWall() {
     };
   }, [refreshPages]);
 
-  const registerPageCount = useCallback(
-    async (pdfId: PdfId, totalPages: number) => {
-      await fetch("/api/pdf-control", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pdfId, totalPages }),
-      }).catch(() => undefined);
-    },
-    [],
-  );
-
   return (
     <main className={styles.wall}>
       <span className={styles.connection} data-online={apiOnline}>
         {apiOnline ? "Connected" : "Reconnecting"}
       </span>
-      {pdfDocuments.map((document) => (
-        <PdfViewer
-          key={document.id}
-          pdfId={document.id}
-          src={document.src}
-          pageNumber={pages[document.id]}
-          onReady={registerPageCount}
+      {activeDocument?.kind === "video" ? (
+        <VideoViewer src={activeDocument.src} playing={videoPlaying} />
+      ) : activeDocument?.kind === "images" ? (
+        <ImageViewer
+          images={activeDocument.images}
+          pageNumber={pages[activeDocument.id]}
+          label={activeDocument.id}
         />
-      ))}
+      ) : (
+        <RubeniusSplash />
+      )}
     </main>
+  );
+}
+
+function RubeniusSplash() {
+  return (
+    <section className={styles.splash} aria-label="Rubenius">
+      <div className={styles.splashGlow} aria-hidden="true" />
+      <h1>Rubenius</h1>
+    </section>
   );
 }

@@ -16,6 +16,29 @@ export function ControlCenter({ options }: ControlCenterProps) {
   const [isSending, setIsSending] = useState(false);
   const [status, setStatus] = useState("");
 
+  async function selectOption(option: ControlOption) {
+    if (isSending) return;
+
+    setIsSending(true);
+    setStatus("Opening…");
+
+    try {
+      const response = await fetch("/api/pdf-control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "activate", pdfId: option.pdfId }),
+      });
+
+      if (!response.ok) throw new Error("Activation failed");
+      setSelectedOption(option);
+      setStatus("");
+    } catch {
+      setStatus("Unable to open preview");
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   async function sendCommand(direction: PdfDirection) {
     if (!selectedOption || isSending) return;
 
@@ -26,13 +49,62 @@ export function ControlCenter({ options }: ControlCenterProps) {
       const response = await fetch("/api/pdf-control", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pdfId: selectedOption.pdfId, direction }),
+        body: JSON.stringify({
+          action: "navigate",
+          pdfId: selectedOption.pdfId,
+          direction,
+        }),
       });
 
       if (!response.ok) throw new Error("Command failed");
       setStatus("Command sent");
     } catch {
       setStatus("Unable to reach preview");
+    } finally {
+      setIsSending(false);
+    }
+  }
+
+  async function closePreview() {
+    if (isSending) return;
+
+    setIsSending(true);
+    setStatus("Closing…");
+
+    try {
+      const response = await fetch("/api/pdf-control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "clear" }),
+      });
+
+      if (!response.ok) throw new Error("Clear failed");
+      setSelectedOption(null);
+      setStatus("");
+    } catch {
+      setStatus("Unable to close preview");
+    } finally {
+      setIsSending(false);
+    }
+  }
+
+  async function sendPlayback(playback: "play" | "pause") {
+    if (!selectedOption || isSending) return;
+
+    setIsSending(true);
+    setStatus(playback === "play" ? "Playing…" : "Pausing…");
+
+    try {
+      const response = await fetch("/api/pdf-control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "playback", playback }),
+      });
+
+      if (!response.ok) throw new Error("Playback command failed");
+      setStatus(playback === "play" ? "Video playing" : "Video paused");
+    } catch {
+      setStatus("Unable to control video");
     } finally {
       setIsSending(false);
     }
@@ -47,10 +119,8 @@ export function ControlCenter({ options }: ControlCenterProps) {
           isSending={isSending}
           status={status}
           onNavigate={sendCommand}
-          onBack={() => {
-            setSelectedOption(null);
-            setStatus("");
-          }}
+          onPlayback={sendPlayback}
+          onBack={closePreview}
         />
       ) : (
         <section className={styles.controls} aria-label="Treatment options">
@@ -58,9 +128,14 @@ export function ControlCenter({ options }: ControlCenterProps) {
             <ControlCard
               key={option.id}
               option={option}
-              onSelect={() => setSelectedOption(option)}
+              onSelect={() => void selectOption(option)}
             />
           ))}
+          {status ? (
+            <p className={styles.selectionStatus} aria-live="polite">
+              {status}
+            </p>
+          ) : null}
         </section>
       )}
     </main>

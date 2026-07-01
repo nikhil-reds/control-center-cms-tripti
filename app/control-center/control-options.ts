@@ -6,6 +6,7 @@ export type ControlOption = {
   label: string;
   shortName: string;
   tagline: string;
+  controlKind: "pages" | "video";
 };
 
 export const controlOptions: ControlOption[] = [
@@ -15,6 +16,7 @@ export const controlOptions: ControlOption[] = [
     label: "Community\nReinvented Toilet",
     shortName: "CRT",
     tagline: "Community-led sanitation. Lasting impact.",
+    controlKind: "pages",
   },
   {
     id: "mobile-treatment-unit",
@@ -22,6 +24,7 @@ export const controlOptions: ControlOption[] = [
     label: "Mobile Treatment Unit",
     shortName: "MTU",
     tagline: "Portable treatment. Lasting impact.",
+    controlKind: "video",
   },
   {
     id: "onsite-treatment-plant",
@@ -29,5 +32,6 @@ export const controlOptions: ControlOption[] = [
     label: "Onsite Treatment\nPlant",
     shortName: "OTP",
     tagline: "Onsite treatment. Lasting impact.",
+    controlKind: "pages",
   },
 ];

@@ -7,6 +7,7 @@ type DetailScreenProps = {
   isSending: boolean;
   status: string;
   onNavigate: (direction: PdfDirection) => void;
+  onPlayback: (playback: "play" | "pause") => void;
   onBack: () => void;
 };
 
@@ -27,40 +28,83 @@ function Chevron({ direction }: { direction: "left" | "right" }) {
   );
 }
 
+function PlayIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.playbackIcon}>
+      <path d="M8 5v14l11-7z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function PauseIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.playbackIcon}>
+      <path d="M7 5h4v14H7zm6 0h4v14h-4z" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function DetailScreen({
   option,
   isSending,
   status,
   onNavigate,
+  onPlayback,
   onBack,
 }: DetailScreenProps) {
   return (
     <section className={styles.detail} aria-labelledby="detail-title">
-      <button type="button" className={styles.backButton} onClick={onBack}>
+      <button
+        type="button"
+        className={styles.backButton}
+        disabled={isSending}
+        onClick={onBack}
+      >
         Back
       </button>
 
       <div className={styles.detailContent}>
         <h1 id="detail-title">{option.shortName}</h1>
         <p>{option.tagline}</p>
-        <div className={styles.pdfControls} aria-label="PDF navigation">
-          <button
-            type="button"
-            aria-label="Previous PDF page"
-            disabled={isSending}
-            onClick={() => onNavigate("previous")}
-          >
-            <Chevron direction="left" />
-          </button>
-          <button
-            type="button"
-            aria-label="Next PDF page"
-            disabled={isSending}
-            onClick={() => onNavigate("next")}
-          >
-            <Chevron direction="right" />
-          </button>
-        </div>
+        {option.controlKind === "video" ? (
+          <div className={styles.pdfControls} aria-label="Video playback">
+            <button
+              type="button"
+              aria-label="Play video"
+              disabled={isSending}
+              onClick={() => onPlayback("play")}
+            >
+              <PlayIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Pause video"
+              disabled={isSending}
+              onClick={() => onPlayback("pause")}
+            >
+              <PauseIcon />
+            </button>
+          </div>
+        ) : (
+          <div className={styles.pdfControls} aria-label="Content navigation">
+            <button
+              type="button"
+              aria-label="Previous item"
+              disabled={isSending}
+              onClick={() => onNavigate("previous")}
+            >
+              <Chevron direction="left" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next item"
+              disabled={isSending}
+              onClick={() => onNavigate("next")}
+            >
+              <Chevron direction="right" />
+            </button>
+          </div>
+        )}
         <p className={styles.commandStatus} aria-live="polite">
           {status}
         </p>
