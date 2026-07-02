@@ -95,74 +95,35 @@
 
 .splash {
   position: relative;
-  display: grid;
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  color: white;
-  background:
-    radial-gradient(ellipse 46% 22% at 30% 10%, rgba(0, 255, 201, 0.7), transparent 70%),
-    radial-gradient(ellipse 52% 22% at 78% 68%, rgba(0, 243, 208, 0.7), transparent 72%),
-    radial-gradient(ellipse 50% 22% at 22% 84%, rgba(0, 226, 192, 0.68), transparent 70%),
-    linear-gradient(135deg, #111b2b 0%, #253247 48%, #111a2b 100%);
-  place-items: center;
-  isolation: isolate;
+  background: #000;
 }
 
-.splash::before,
-.splash::after {
-  position: absolute;
-  z-index: -1;
-  width: 90vw;
-  height: 22vw;
-  min-height: 140px;
-  content: "";
-  border: 2px solid rgba(45, 255, 218, 0.45);
-  border-radius: 50%;
-  filter: blur(8px);
-  transform: rotate(18deg);
+.splash video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
-.splash::before {
-  top: 6%;
-  left: 12%;
-}
-
-.splash::after {
-  right: -16%;
-  bottom: 4%;
-  transform: rotate(-12deg);
-}
-
-.splashGlow {
-  position: absolute;
-  z-index: -1;
-  width: 48vw;
-  height: 34vw;
-  min-width: 420px;
-  min-height: 280px;
-  border-radius: 50%;
-  background: rgba(0, 255, 204, 0.3);
-  filter: blur(62px);
-  transform: rotate(-26deg);
-}
-
-.splash h1 {
-  margin: 0;
-  max-width: 1200px;
-  padding: 24px;
-  font-size: clamp(42px, 7vw, 112px);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.045em;
-  text-align: center;
-  text-wrap: balance;
-  text-shadow: 0 12px 44px rgba(0, 0, 0, 0.3);
+.mobileSplashVideo {
+  display: none !important;
 }
 
 @media (max-width: 760px) {
   .wall {
     overflow: hidden;
+  }
+
+  .desktopSplashVideo {
+    display: none !important;
+  }
+
+  .mobileSplashVideo {
+    display: block !important;
   }
 }
 

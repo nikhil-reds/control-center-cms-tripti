@@ -14,11 +14,7 @@ const initialPages = Object.fromEntries(
   mediaDocuments.map((document) => [document.id, 1]),
 ) as Record<PdfId, number>;
 
-type PreviewWallProps = {
-  splashFontClassName: string;
-};
-
-export function PreviewWall({ splashFontClassName }: PreviewWallProps) {
+export function PreviewWall() {
   const [pages, setPages] = useState(initialPages);
   const [activePdfId, setActivePdfId] = useState<PdfId | null>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -73,17 +69,37 @@ export function PreviewWall({ splashFontClassName }: PreviewWallProps) {
           label={activeDocument.id}
         />
       ) : (
-        <PreviewSplash fontClassName={splashFontClassName} />
+        <PreviewSplash />
       )}
     </main>
   );
 }
 
-function PreviewSplash({ fontClassName }: { fontClassName: string }) {
+function PreviewSplash() {
   return (
-    <section className={styles.splash} aria-label="Closing the Loop At Home">
-      <div className={styles.splashGlow} aria-hidden="true" />
-      <h1 className={fontClassName}>Closing the Loop At Home</h1>
+    <section className={styles.splash} aria-label="Rubenius idle screen">
+      <video
+        className={styles.desktopSplashVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="/BG-VIDEO/DESKTOP.mp4" type="video/mp4" />
+      </video>
+      <video
+        className={styles.mobileSplashVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="/BG-VIDEO/mobile.mp4" type="video/mp4" />
+      </video>
     </section>
   );
 }
