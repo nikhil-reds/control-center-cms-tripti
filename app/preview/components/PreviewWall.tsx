@@ -1,105 +1,45 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  mediaDocuments,
-  type PdfRemoteState,
-  type PdfId,
-} from "@/lib/pdf-control";
+import type { MediaRemoteState } from "@/lib/media-control";
 import styles from "../preview.module.css";
 import { ImageViewer } from "./ImageViewer";
 import { VideoViewer } from "./VideoViewer";
 
-const initialPages = Object.fromEntries(
-  mediaDocuments.map((document) => [document.id, 1]),
-) as Record<PdfId, number>;
+const idleState: MediaRemoteState = {
+  mode: "IDLE",
+  videoPlaying: false,
+  slideIndex: 0,
+  slideTotal: 0,
+  asset: null,
+  updatedAt: 0,
+};
 
 export function PreviewWall() {
-  const [pages, setPages] = useState(initialPages);
-  const [activePdfId, setActivePdfId] = useState<PdfId | null>(null);
-  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [state, setState] = useState<MediaRemoteState>(idleState);
   const [apiOnline, setApiOnline] = useState(true);
 
-  const refreshPages = useCallback(async () => {
+  const refresh = useCallback(async () => {
     try {
-      const response = await fetch("/api/pdf-control", { cache: "no-store" });
+      const response = await fetch("/api/media-control", { cache: "no-store" });
       if (!response.ok) throw new Error("State request failed");
-
-      const data = (await response.json()) as PdfRemoteState;
-      setActivePdfId(data.activePdfId);
-      setVideoPlaying(data.videoPlaying);
-      setPages(
-        Object.fromEntries(
-          mediaDocuments.map((document) => [
-            document.id,
-            data.documents[document.id].page,
-          ]),
-        ) as Record<PdfId, number>,
-      );
+      setState(await response.json() as MediaRemoteState);
       setApiOnline(true);
-    } catch {
-      setApiOnline(false);
-    }
+    } catch { setApiOnline(false); }
   }, []);
 
-  const activeDocument = mediaDocuments.find(
-    (document) => document.id === activePdfId,
-  );
-
   useEffect(() => {
-    const initialTimer = window.setTimeout(() => void refreshPages(), 0);
-    const timer = window.setInterval(() => void refreshPages(), 700);
-    return () => {
-      window.clearTimeout(initialTimer);
-      window.clearInterval(timer);
-    };
-  }, [refreshPages]);
+    const initialTimer = window.setTimeout(() => void refresh(), 0);
+    const timer = window.setInterval(() => void refresh(), 700);
+    return () => { window.clearTimeout(initialTimer); window.clearInterval(timer); };
+  }, [refresh]);
 
-  return (
-    <main className={styles.wall}>
-      <span className={styles.connection} data-online={apiOnline}>
-        {apiOnline ? "Connected" : "Reconnecting"}
-      </span>
-      {activeDocument?.kind === "video" ? (
-        <VideoViewer src={activeDocument.src} playing={videoPlaying} />
-      ) : activeDocument?.kind === "images" ? (
-        <ImageViewer
-          images={activeDocument.images}
-          pageNumber={pages[activeDocument.id]}
-          label={activeDocument.id}
-        />
-      ) : (
-        <PreviewSplash />
-      )}
-    </main>
-  );
+  return <main className={styles.wall}>
+    <span className={styles.connection} data-online={apiOnline}>{apiOnline ? "Connected" : "Reconnecting"}</span>
+    {state.mode === "VIDEO" && state.asset?.type === "VIDEO" ? <VideoViewer key={state.asset.id} src={state.asset.url} playing={state.videoPlaying}/> : state.mode === "SLIDER" && state.asset?.type === "IMAGE" ? <ImageViewer key={state.asset.id} src={state.asset.url} name={state.asset.name} index={state.slideIndex} total={state.slideTotal}/> : <PreviewSplash/>}
+  </main>;
 }
 
 function PreviewSplash() {
-  return (
-    <section className={styles.splash} aria-label="Rubenius idle screen">
-      <video
-        className={styles.desktopSplashVideo}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <source src="/BG-VIDEO/DESKTOP.mp4" type="video/mp4" />
-      </video>
-      <video
-        className={styles.mobileSplashVideo}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <source src="/BG-VIDEO/mobile.mp4" type="video/mp4" />
-      </video>
-    </section>
-  );
+  return <section className={styles.splash} aria-label="Rubenius idle screen"><div className={styles.splashGlow}/><div className={styles.splashBrand}><span>R</span><h1>Rubenius</h1><p>Experience ready</p></div></section>;
 }
