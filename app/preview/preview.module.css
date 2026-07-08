@@ -59,8 +59,11 @@
 }
 
 .sequenceImage {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
+.slideCounter { position: absolute; right: 20px; bottom: 18px; z-index: 2; padding: 7px 11px; color: #fff; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(4,10,15,.65); font-size: 11px; backdrop-filter: blur(8px); }
 
 @keyframes image-enter {
   from {
@@ -94,37 +97,20 @@
 }
 
 .splash {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: #000;
+  position: relative; display: grid; width: 100%; height: 100vh; overflow: hidden; color: #fff; background: radial-gradient(circle at 50% 44%, #18354a 0%, #0b1724 34%, #050a11 72%); place-items: center;
 }
-
-.splash video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.mobileSplashVideo {
-  display: none !important;
-}
+.splashGlow { position: absolute; width: 42vw; height: 42vw; min-width: 320px; min-height: 320px; border: 1px solid rgba(2,223,178,.25); border-radius: 50%; box-shadow: 0 0 120px rgba(2,223,178,.11), inset 0 0 90px rgba(2,223,178,.07); }
+.splashBrand { position: relative; z-index: 1; text-align: center; }
+.splashBrand > span { display: grid; width: 76px; height: 76px; margin: 0 auto 22px; color: #072a25; border-radius: 22px; background: #29e2bb; box-shadow: 0 0 55px rgba(2,223,178,.32); font-size: 36px; font-weight: 850; place-items: center; }
+.splashBrand h1 { margin: 0; font-size: clamp(42px, 6vw, 82px); letter-spacing: -.055em; }
+.splashBrand p { margin: 12px 0 0; color: #79a69e; font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
 
 @media (max-width: 760px) {
   .wall {
     overflow: hidden;
   }
 
-  .desktopSplashVideo {
-    display: none !important;
-  }
-
-  .mobileSplashVideo {
-    display: block !important;
-  }
+  .splashGlow { width: 85vw; height: 85vw; }
 }
 
 @media (prefers-reduced-motion: reduce) {
