@@ -20,15 +20,13 @@ export function VideoViewer({ src, playing }: VideoViewerProps) {
     } else {
       video.pause();
     }
-  }, [playing]);
+  }, [playing, src]);
 
   return (
     <section className={styles.videoViewer} aria-label="Video preview">
       <video
         ref={videoRef}
         src={src}
-        controls
-        autoPlay
         muted
         playsInline
         preload="auto"
