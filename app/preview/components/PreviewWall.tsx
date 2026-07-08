@@ -23,14 +23,24 @@ export function PreviewWall() {
     try {
       const response = await fetch("/api/media-control", { cache: "no-store" });
       if (!response.ok) throw new Error("State request failed");
-      setState(await response.json() as MediaRemoteState);
+      const incoming = await response.json() as MediaRemoteState;
+      setState((current) => {
+        if (
+          incoming.asset && current.asset &&
+          incoming.asset.id === current.asset.id &&
+          current.asset.urlExpiresAt - Date.now() > 5 * 60 * 1000
+        ) {
+          return { ...incoming, asset: { ...incoming.asset, url: current.asset.url, urlExpiresAt: current.asset.urlExpiresAt } };
+        }
+        return incoming;
+      });
       setApiOnline(true);
     } catch { setApiOnline(false); }
   }, []);
 
   useEffect(() => {
     const initialTimer = window.setTimeout(() => void refresh(), 0);
-    const timer = window.setInterval(() => void refresh(), 700);
+    const timer = window.setInterval(() => void refresh(), 1000);
     return () => { window.clearTimeout(initialTimer); window.clearInterval(timer); };
   }, [refresh]);
 

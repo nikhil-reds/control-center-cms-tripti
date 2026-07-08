@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getPresignedDownloadUrl } from "@/lib/s3";
+import { getStablePresignedDownloadUrl } from "@/lib/s3";
 import {
   isPreviewMode,
   isSliderDirection,
@@ -38,9 +38,10 @@ async function resolveState(): Promise<MediaRemoteState> {
       setMode("IDLE");
       return { ...mediaControlState, asset: null, slideTotal: 0 };
     }
+    const signed = await getStablePresignedDownloadUrl(video.objectKey);
     return {
       ...mediaControlState,
-      asset: { id: video.id, name: video.name, type: video.type, url: await getPresignedDownloadUrl(video.objectKey) },
+      asset: { id: video.id, name: video.name, type: video.type, url: signed.url, urlExpiresAt: signed.expiresAt },
       slideTotal: 0,
     };
   }
@@ -53,9 +54,10 @@ async function resolveState(): Promise<MediaRemoteState> {
     }
     mediaControlState.slideIndex = Math.min(images.length - 1, Math.max(0, mediaControlState.slideIndex));
     const image = images[mediaControlState.slideIndex];
+    const signed = await getStablePresignedDownloadUrl(image.objectKey);
     return {
       ...mediaControlState,
-      asset: { id: image.id, name: image.name, type: image.type, url: await getPresignedDownloadUrl(image.objectKey) },
+      asset: { id: image.id, name: image.name, type: image.type, url: signed.url, urlExpiresAt: signed.expiresAt },
       slideTotal: images.length,
     };
   }

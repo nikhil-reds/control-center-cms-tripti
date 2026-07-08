@@ -13,6 +13,7 @@ export type PreviewAsset = {
   name: string;
   type: "IMAGE" | "VIDEO";
   url: string;
+  urlExpiresAt: number;
 };
 
 export type MediaRemoteState = MediaControlState & {

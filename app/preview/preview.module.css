@@ -51,6 +51,11 @@
   height: 100%;
   object-fit: contain;
 }
+.videoStatus { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 12px; color: #b8c4cd; background: radial-gradient(circle, #101d29, #070d12 72%); }
+.videoStatus p { margin: 0; font-size: 11px; font-weight: 650; letter-spacing: .05em; }
+.videoSpinner { width: 28px; height: 28px; border: 2px solid rgba(255,255,255,.14); border-top-color: #2de1bd; border-radius: 50%; animation: video-spin 800ms linear infinite; }
+.pausedBadge { position: absolute; right: 20px; bottom: 18px; padding: 7px 11px; color: #fff; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(4,10,15,.65); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; backdrop-filter: blur(8px); }
+@keyframes video-spin { to { transform: rotate(360deg); } }
 
 .imageSlide {
   position: absolute;

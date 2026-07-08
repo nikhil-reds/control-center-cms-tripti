@@ -6,6 +6,12 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+type SignedUrlEntry = { url: string; expiresAt: number };
+const globalForSignedUrls = globalThis as typeof globalThis & {
+  s3SignedUrlCache?: Map<string, SignedUrlEntry>;
+};
+const signedUrlCache = (globalForSignedUrls.s3SignedUrlCache ??= new Map());
+
 function getAwsConfig() {
   const region = process.env.AWS_REGION;
   const bucket = process.env.AWS_BUCKET;
@@ -54,7 +60,21 @@ export async function getPresignedDownloadUrl(key: string, expiresIn = 3600) {
   );
 }
 
+export async function getStablePresignedDownloadUrl(key: string, expiresIn = 3600) {
+  const cached = signedUrlCache.get(key);
+  const refreshWindow = 5 * 60 * 1000;
+  if (cached && cached.expiresAt - Date.now() > refreshWindow) return cached;
+
+  const entry = {
+    url: await getPresignedDownloadUrl(key, expiresIn),
+    expiresAt: Date.now() + expiresIn * 1000,
+  };
+  signedUrlCache.set(key, entry);
+  return entry;
+}
+
 export async function deleteFromS3(key: string) {
   const { bucket } = getAwsConfig();
   await getS3Client().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+  signedUrlCache.delete(key);
 }
