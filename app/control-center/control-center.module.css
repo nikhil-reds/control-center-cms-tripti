@@ -277,7 +277,10 @@
 .powerRow { margin-top: 32px; }
 .powerRow button, .transport button { display: flex; min-height: 58px; align-items: center; justify-content: center; gap: 10px; cursor: pointer; border-radius: 13px; font: inherit; font-size: 14px; font-weight: 720; transition: transform 150ms ease, opacity 150ms ease, background 150ms ease; }
 .powerRow button svg, .transport button svg { width: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.onButton { color: #07110f; border: 0; background: #f7f9f8; }
+.onButton { color: #7e8792; border: 1px solid #2b323a; background: #111720; }
+.onButton:hover:not(:disabled) { color: #fff; border-color: #46515e; background: #19212b; }
+.onButtonActive { color: #07110f; border-color: #f7f9f8; background: #f7f9f8; box-shadow: 0 10px 28px rgba(255,255,255,.09); }
+.onButtonActive:disabled { opacity: 1; }
 .offButton { color: #fff; border: 1px solid #2b323a; background: #161b22; }
 .transport { margin-top: 12px; padding-top: 18px; border-top: 1px solid #202630; }
 .transport button { min-height: 49px; color: #b9c1ca; border: 1px solid #29323d; background: #101720; }
